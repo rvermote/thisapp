@@ -1,6 +1,7 @@
 "use client"
 import {useEffect, useState} from "react"
 import axios from "axios"
+import Image from "next/image"
 
 export default function Home() {
 
@@ -23,22 +24,6 @@ export default function Home() {
 
   const [tableSorted, setTableSorted] = useState<{[key:string]: any}>({})
   const [inputFieldValue, setInputFieldValue] = useState<string>("")
-
-  useEffect(() => {
-    axios.get("https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json")
-      .then(res => {
-        const arr = dataToArray(res.data)
-        setData({jsonData:res.data, headers:columns, pokemonArray:arr})
-        setInitPokemonArray([...arr])
-      })
-  },[])
-
-  useEffect(() => {
-    let newTable: {[key:string]: any} = {}
-    Object.keys(columns).forEach(key => newTable[key]=tableOrder.Unsorted)
-    setTableSorted(newTable)
-  },[])
-
   const columns = {
     sprite: "Sprite",
     name: "Name",
@@ -50,6 +35,24 @@ export default function Home() {
     spAttack: "Sp. Attack",
     spDefense: "Sp. Defense",
     speed: "Speed",}
+
+  useEffect(() => {
+    axios.get("https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json")
+      .then(res => {
+        const arr = dataToArray(res.data)
+        setData({jsonData:res.data, headers:columns, pokemonArray:arr})
+        setInitPokemonArray([...arr])
+      })
+      .catch(err => console.log(err))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
+
+  useEffect(() => {
+    let newTable: {[key:string]: any} = {}
+    Object.keys(columns).forEach(key => newTable[key]=tableOrder.Unsorted)
+    setTableSorted(newTable)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
 
   const dataToArray = (input:any):any[] => {
     let res:any[]=[]
@@ -119,7 +122,7 @@ export default function Home() {
 
   return (
     <body>
-    <header className="sticky top-0 bg-[#212121] p-6 border-b border-gray-600 text-white font-bold">
+    <header className="sticky top-0 bg-[#212121] p-6 border-b border-gray-600 text-white font-bold z-10">
       <h1 className="hover:cursor-pointer left-0 inline-block whitespace-nowrap" onClick={scrollToTop}>POKE LOOKUP</h1>
     </header>
     <main className="font-bold bg-[#212121] text-white min-h-screen">
@@ -130,9 +133,9 @@ export default function Home() {
             {Object.keys(data.jsonData).map((key,pokemonidx) => <option key={pokemonidx}> {data.jsonData[key].name.english} </option>)}
           </select>
 
-          <div className="flex flex-col items-center my-5">
+          <div className="flex flex-col items-center my-5 relative">
             <div>{data.jsonData[curPokemon]?.name?.english}</div>
-            <div><img src={"https://img.pokemondb.net/sprites/home/normal/"+(data.jsonData[curPokemon]?.name?.english)?.toLowerCase()+".png"}></img></div>
+            <div><Image src={"https://img.pokemondb.net/sprites/home/normal/"+(data.jsonData[curPokemon]?.name?.english)?.toLowerCase()+".png"} alt="Pokemon image" width={150} height={150}/></div>
           </div>
 
           <div className="flex justify-between border rounded-lg m-4">
@@ -150,20 +153,20 @@ export default function Home() {
 
         <input type="text" placeholder="Search" onChange={(e) => setInputFieldValue(e.target.value)} className="rounded-lg border-gray-300 bg-[#3d3d3d] px-2 py-0.5 m-2"></input>
           <table>
-            <thead>
+            <thead key="head">
               <tr>
-                {Object.keys(data.headers).map((key:string) => <th className="bg-[#3d3d3d] hover:cursor-pointer px-3" id={key} onClick={_ => {changeOrder(key); sortColumn(key)}}> {data.headers[key]} </th>)}
+                {Object.keys(data.headers).map((key:string) => <th key={key} className="bg-[#3d3d3d] hover:cursor-pointer px-3" onClick={_ => {changeOrder(key); sortColumn(key)}}> {data.headers[key]} </th>)}
               </tr>
             </thead>
-            <tbody>
-              {filterRows(data.pokemonArray).map(row => 
-                <tr> {Object.keys(data.headers).map(key => {
+            <tbody key="body">
+              {filterRows(data.pokemonArray).map((row,idx) => 
+                <tr key={idx}> {Object.keys(data.headers).map((key,idx) => {
                     if (key==="sprite")
-                      return <td className='bg-[#3d3d3d]'><img src={"https://img.pokemondb.net/sprites/sword-shield/icon/"+String(row["name"].toLowerCase()).padStart(3,"0")+".png"}></img></td>
+                      return <td key={idx} className='bg-[#3d3d3d] relative'><Image src={"https://img.pokemondb.net/sprites/sword-shield/icon/"+String(row["name"].toLowerCase()).padStart(3,"0")+".png"} alt="" fill={true}/></td>
                     else if (key==="name")
-                      return <td className='bg-[#3d3d3d] py-2' onClick={_ => {setCurPokemon(row["id"]-1), scrollToTop()}}> <span className="hover:underline hover:cursor-pointer">{row[key]}</span> </td>
+                      return <td key={idx} className='bg-[#3d3d3d] py-2' onClick={_ => {setCurPokemon(row["id"]-1), scrollToTop()}}> <span className="hover:underline hover:cursor-pointer">{row[key]}</span> </td>
                     else
-                      return <td className='bg-[#3d3d3d] py-2'> {row[key]} </td>
+                      return <td key={idx} className='bg-[#3d3d3d] py-2'> {row[key]} </td>
                     })} </tr>)}
             </tbody>
           </table>
