@@ -135,7 +135,7 @@ export default function Home() {
 
           <div className="flex flex-col items-center my-5 relative">
             <div>{data.jsonData[curPokemon]?.name?.english}</div>
-            <div><Image src={"https://img.pokemondb.net/sprites/home/normal/"+(data.jsonData[curPokemon]?.name?.english)?.toLowerCase()+".png"} alt="Pokemon image" width={150} height={150}/></div>
+            <div><Image src={"https://img.pokemondb.net/sprites/home/normal/"+(data.jsonData[curPokemon]?.name?.english)?.toLowerCase()+".png"} alt="Pokemon image" width={150} height={150} priority={true}/></div>
           </div>
 
           <div className="flex justify-between border rounded-lg m-4">
@@ -162,7 +162,7 @@ export default function Home() {
               {filterRows(data.pokemonArray).map((row,idx) => 
                 <tr key={idx}> {Object.keys(data.headers).map((key,idx) => {
                     if (key==="sprite")
-                      return <td key={idx} className='bg-[#3d3d3d] relative'><Image src={"https://img.pokemondb.net/sprites/sword-shield/icon/"+String(row["name"].toLowerCase()).padStart(3,"0")+".png"} alt="" fill={true}/></td>
+                      return <td key={idx} className='bg-[#3d3d3d] relative'><Image src={"https://img.pokemondb.net/sprites/sword-shield/icon/"+String(row["name"].toLowerCase()).padStart(3,"0")+".png"} alt="" fill={true} priority={true}/></td>
                     else if (key==="name")
                       return <td key={idx} className='bg-[#3d3d3d] py-2' onClick={_ => {setCurPokemon(row["id"]-1), scrollToTop()}}> <span className="hover:underline hover:cursor-pointer">{row[key]}</span> </td>
                     else
